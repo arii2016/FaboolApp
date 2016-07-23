@@ -1,0 +1,320 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>d3a84fed-2d0c-44f1-aa52-945f73541c1e</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>app.py</StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <Name>backend</Name>
+    <RootNamespace>backend</RootNamespace>
+    <IsWindowsApplication>False</IsWindowsApplication>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="app.py" />
+    <Compile Include="bottle.py" />
+    <Compile Include="filereaders\dxf_reader.py" />
+    <Compile Include="filereaders\kdtree.py" />
+    <Compile Include="filereaders\ngc_reader.py" />
+    <Compile Include="filereaders\path_optimizers.py" />
+    <Compile Include="filereaders\svg_attribute_reader.py" />
+    <Compile Include="filereaders\svg_path_reader.py" />
+    <Compile Include="filereaders\svg_reader.py" />
+    <Compile Include="filereaders\svg_tag_reader.py" />
+    <Compile Include="filereaders\utilities.py" />
+    <Compile Include="filereaders\webcolors.py" />
+    <Compile Include="filereaders\__init__.py" />
+    <Compile Include="json\decoder.py" />
+    <Compile Include="json\encoder.py" />
+    <Compile Include="json\scanner.py" />
+    <Compile Include="json\tool.py" />
+    <Compile Include="json\__init__.py" />
+    <Compile Include="PIL\BdfFontFile.py" />
+    <Compile Include="PIL\BmpImagePlugin.py" />
+    <Compile Include="PIL\BufrStubImagePlugin.py" />
+    <Compile Include="PIL\ContainerIO.py" />
+    <Compile Include="PIL\CurImagePlugin.py" />
+    <Compile Include="PIL\DcxImagePlugin.py" />
+    <Compile Include="PIL\EpsImagePlugin.py" />
+    <Compile Include="PIL\ExifTags.py" />
+    <Compile Include="PIL\features.py" />
+    <Compile Include="PIL\FitsStubImagePlugin.py" />
+    <Compile Include="PIL\FliImagePlugin.py" />
+    <Compile Include="PIL\FontFile.py" />
+    <Compile Include="PIL\FpxImagePlugin.py" />
+    <Compile Include="PIL\GbrImagePlugin.py" />
+    <Compile Include="PIL\GdImageFile.py" />
+    <Compile Include="PIL\GifImagePlugin.py" />
+    <Compile Include="PIL\GimpGradientFile.py" />
+    <Compile Include="PIL\GimpPaletteFile.py" />
+    <Compile Include="PIL\GribStubImagePlugin.py" />
+    <Compile Include="PIL\Hdf5StubImagePlugin.py" />
+    <Compile Include="PIL\IcnsImagePlugin.py" />
+    <Compile Include="PIL\IcoImagePlugin.py" />
+    <Compile Include="PIL\Image.py" />
+    <Compile Include="PIL\ImageChops.py" />
+    <Compile Include="PIL\ImageCms.py" />
+    <Compile Include="PIL\ImageColor.py" />
+    <Compile Include="PIL\ImageDraw.py" />
+    <Compile Include="PIL\ImageDraw2.py" />
+    <Compile Include="PIL\ImageEnhance.py" />
+    <Compile Include="PIL\ImageFile.py" />
+    <Compile Include="PIL\ImageFilter.py" />
+    <Compile Include="PIL\ImageFont.py" />
+    <Compile Include="PIL\ImageGrab.py" />
+    <Compile Include="PIL\ImageMath.py" />
+    <Compile Include="PIL\ImageMode.py" />
+    <Compile Include="PIL\ImageMorph.py" />
+    <Compile Include="PIL\ImageOps.py" />
+    <Compile Include="PIL\ImagePalette.py" />
+    <Compile Include="PIL\ImagePath.py" />
+    <Compile Include="PIL\ImageQt.py" />
+    <Compile Include="PIL\ImageSequence.py" />
+    <Compile Include="PIL\ImageShow.py" />
+    <Compile Include="PIL\ImageStat.py" />
+    <Compile Include="PIL\ImageTk.py" />
+    <Compile Include="PIL\ImageTransform.py" />
+    <Compile Include="PIL\ImageWin.py" />
+    <Compile Include="PIL\ImImagePlugin.py" />
+    <Compile Include="PIL\ImtImagePlugin.py" />
+    <Compile Include="PIL\IptcImagePlugin.py" />
+    <Compile Include="PIL\Jpeg2KImagePlugin.py" />
+    <Compile Include="PIL\JpegImagePlugin.py" />
+    <Compile Include="PIL\JpegPresets.py" />
+    <Compile Include="PIL\McIdasImagePlugin.py" />
+    <Compile Include="PIL\MicImagePlugin.py" />
+    <Compile Include="PIL\MpegImagePlugin.py" />
+    <Compile Include="PIL\MpoImagePlugin.py" />
+    <Compile Include="PIL\MspImagePlugin.py" />
+    <Compile Include="PIL\OleFileIO.py" />
+    <Compile Include="PIL\PaletteFile.py" />
+    <Compile Include="PIL\PalmImagePlugin.py" />
+    <Compile Include="PIL\PcdImagePlugin.py" />
+    <Compile Include="PIL\PcfFontFile.py" />
+    <Compile Include="PIL\PcxImagePlugin.py" />
+    <Compile Include="PIL\PdfImagePlugin.py" />
+    <Compile Include="PIL\PixarImagePlugin.py" />
+    <Compile Include="PIL\PngImagePlugin.py" />
+    <Compile Include="PIL\PpmImagePlugin.py" />
+    <Compile Include="PIL\PsdImagePlugin.py" />
+    <Compile Include="PIL\PSDraw.py" />
+    <Compile Include="PIL\PyAccess.py" />
+    <Compile Include="PIL\SgiImagePlugin.py" />
+    <Compile Include="PIL\SpiderImagePlugin.py" />
+    <Compile Include="PIL\SunImagePlugin.py" />
+    <Compile Include="PIL\TarIO.py" />
+    <Compile Include="PIL\TgaImagePlugin.py" />
+    <Compile Include="PIL\TiffImagePlugin.py" />
+    <Compile Include="PIL\TiffTags.py" />
+    <Compile Include="PIL\WalImageFile.py" />
+    <Compile Include="PIL\WebPImagePlugin.py" />
+    <Compile Include="PIL\WmfImagePlugin.py" />
+    <Compile Include="PIL\XbmImagePlugin.py" />
+    <Compile Include="PIL\XpmImagePlugin.py" />
+    <Compile Include="PIL\XVThumbImagePlugin.py" />
+    <Compile Include="PIL\_binary.py" />
+    <Compile Include="PIL\_util.py" />
+    <Compile Include="PIL\__init__.py" />
+    <Compile Include="serial\aio.py" />
+    <Compile Include="serial\rfc2217.py" />
+    <Compile Include="serial\rs485.py" />
+    <Compile Include="serial\serialcli.py" />
+    <Compile Include="serial\serialjava.py" />
+    <Compile Include="serial\serialposix.py" />
+    <Compile Include="serial\serialutil.py" />
+    <Compile Include="serial\serialwin32.py" />
+    <Compile Include="serial\threaded\__init__.py" />
+    <Compile Include="serial\tools\hexlify_codec.py" />
+    <Compile Include="serial\tools\list_ports.py" />
+    <Compile Include="serial\tools\list_ports_common.py" />
+    <Compile Include="serial\tools\list_ports_linux.py" />
+    <Compile Include="serial\tools\list_ports_osx.py" />
+    <Compile Include="serial\tools\list_ports_posix.py" />
+    <Compile Include="serial\tools\list_ports_windows.py" />
+    <Compile Include="serial\tools\miniterm.py" />
+    <Compile Include="serial\tools\__init__.py" />
+    <Compile Include="serial\urlhandler\protocol_alt.py" />
+    <Compile Include="serial\urlhandler\protocol_hwgrep.py" />
+    <Compile Include="serial\urlhandler\protocol_loop.py" />
+    <Compile Include="serial\urlhandler\protocol_rfc2217.py" />
+    <Compile Include="serial\urlhandler\protocol_socket.py" />
+    <Compile Include="serial\urlhandler\protocol_spy.py" />
+    <Compile Include="serial\urlhandler\__init__.py" />
+    <Compile Include="serial\win32.py" />
+    <Compile Include="serial\__init__.py" />
+    <Compile Include="serial_manager.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="filereaders\" />
+    <Folder Include="json\" />
+    <Folder Include="PIL\" />
+    <Folder Include="serial\" />
+    <Folder Include="serial\threaded\" />
+    <Folder Include="serial\tools\" />
+    <Folder Include="serial\urlhandler\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="filereaders\dxf_reader.pyc" />
+    <Content Include="filereaders\kdtree.pyc" />
+    <Content Include="filereaders\ngc_reader.pyc" />
+    <Content Include="filereaders\path_optimizers.pyc" />
+    <Content Include="filereaders\svg_attribute_reader.pyc" />
+    <Content Include="filereaders\svg_path_reader.pyc" />
+    <Content Include="filereaders\svg_reader.pyc" />
+    <Content Include="filereaders\svg_tag_reader.pyc" />
+    <Content Include="filereaders\utilities.pyc" />
+    <Content Include="filereaders\webcolors.pyc" />
+    <Content Include="filereaders\__init__.pyc" />
+    <Content Include="json\decoder.pyc" />
+    <Content Include="json\encoder.pyc" />
+    <Content Include="json\scanner.pyc" />
+    <Content Include="json\__init__.pyc" />
+    <Content Include="PIL\BdfFontFile.pyc" />
+    <Content Include="PIL\BmpImagePlugin.pyc" />
+    <Content Include="PIL\BufrStubImagePlugin.pyc" />
+    <Content Include="PIL\ContainerIO.pyc" />
+    <Content Include="PIL\CurImagePlugin.pyc" />
+    <Content Include="PIL\DcxImagePlugin.pyc" />
+    <Content Include="PIL\EpsImagePlugin.pyc" />
+    <Content Include="PIL\ExifTags.pyc" />
+    <Content Include="PIL\features.pyc" />
+    <Content Include="PIL\FitsStubImagePlugin.pyc" />
+    <Content Include="PIL\FliImagePlugin.pyc" />
+    <Content Include="PIL\FontFile.pyc" />
+    <Content Include="PIL\FpxImagePlugin.pyc" />
+    <Content Include="PIL\GbrImagePlugin.pyc" />
+    <Content Include="PIL\GdImageFile.pyc" />
+    <Content Include="PIL\GifImagePlugin.pyc" />
+    <Content Include="PIL\GimpGradientFile.pyc" />
+    <Content Include="PIL\GimpPaletteFile.pyc" />
+    <Content Include="PIL\GribStubImagePlugin.pyc" />
+    <Content Include="PIL\Hdf5StubImagePlugin.pyc" />
+    <Content Include="PIL\IcnsImagePlugin.pyc" />
+    <Content Include="PIL\IcoImagePlugin.pyc" />
+    <Content Include="PIL\Image.pyc" />
+    <Content Include="PIL\ImageChops.pyc" />
+    <Content Include="PIL\ImageCms.pyc" />
+    <Content Include="PIL\ImageColor.pyc" />
+    <Content Include="PIL\ImageDraw.pyc" />
+    <Content Include="PIL\ImageDraw2.pyc" />
+    <Content Include="PIL\ImageEnhance.pyc" />
+    <Content Include="PIL\ImageFile.pyc" />
+    <Content Include="PIL\ImageFilter.pyc" />
+    <Content Include="PIL\ImageFont.pyc" />
+    <Content Include="PIL\ImageGrab.pyc" />
+    <Content Include="PIL\ImageMath.pyc" />
+    <Content Include="PIL\ImageMode.pyc" />
+    <Content Include="PIL\ImageMorph.pyc" />
+    <Content Include="PIL\ImageOps.pyc" />
+    <Content Include="PIL\ImagePalette.pyc" />
+    <Content Include="PIL\ImagePath.pyc" />
+    <Content Include="PIL\ImageQt.pyc" />
+    <Content Include="PIL\ImageSequence.pyc" />
+    <Content Include="PIL\ImageShow.pyc" />
+    <Content Include="PIL\ImageStat.pyc" />
+    <Content Include="PIL\ImageTk.pyc" />
+    <Content Include="PIL\ImageTransform.pyc" />
+    <Content Include="PIL\ImageWin.pyc" />
+    <Content Include="PIL\ImImagePlugin.pyc" />
+    <Content Include="PIL\ImtImagePlugin.pyc" />
+    <Content Include="PIL\IptcImagePlugin.pyc" />
+    <Content Include="PIL\Jpeg2KImagePlugin.pyc" />
+    <Content Include="PIL\JpegImagePlugin.pyc" />
+    <Content Include="PIL\JpegPresets.pyc" />
+    <Content Include="PIL\McIdasImagePlugin.pyc" />
+    <Content Include="PIL\MicImagePlugin.pyc" />
+    <Content Include="PIL\MpegImagePlugin.pyc" />
+    <Content Include="PIL\MpoImagePlugin.pyc" />
+    <Content Include="PIL\MspImagePlugin.pyc" />
+    <Content Include="PIL\OleFileIO-README.md" />
+    <Content Include="PIL\OleFileIO.pyc" />
+    <Content Include="PIL\PaletteFile.pyc" />
+    <Content Include="PIL\PalmImagePlugin.pyc" />
+    <Content Include="PIL\PcdImagePlugin.pyc" />
+    <Content Include="PIL\PcfFontFile.pyc" />
+    <Content Include="PIL\PcxImagePlugin.pyc" />
+    <Content Include="PIL\PdfImagePlugin.pyc" />
+    <Content Include="PIL\PixarImagePlugin.pyc" />
+    <Content Include="PIL\PngImagePlugin.pyc" />
+    <Content Include="PIL\PpmImagePlugin.pyc" />
+    <Content Include="PIL\PsdImagePlugin.pyc" />
+    <Content Include="PIL\PSDraw.pyc" />
+    <Content Include="PIL\PyAccess.pyc" />
+    <Content Include="PIL\SgiImagePlugin.pyc" />
+    <Content Include="PIL\SpiderImagePlugin.pyc" />
+    <Content Include="PIL\SunImagePlugin.pyc" />
+    <Content Include="PIL\TarIO.pyc" />
+    <Content Include="PIL\TgaImagePlugin.pyc" />
+    <Content Include="PIL\TiffImagePlugin.pyc" />
+    <Content Include="PIL\TiffTags.pyc" />
+    <Content Include="PIL\WalImageFile.pyc" />
+    <Content Include="PIL\WebPImagePlugin.pyc" />
+    <Content Include="PIL\WmfImagePlugin.pyc" />
+    <Content Include="PIL\XbmImagePlugin.pyc" />
+    <Content Include="PIL\XpmImagePlugin.pyc" />
+    <Content Include="PIL\XVThumbImagePlugin.pyc" />
+    <Content Include="PIL\_binary.pyc" />
+    <Content Include="PIL\_imaging.pyd" />
+    <Content Include="PIL\_imagingcms.pyd" />
+    <Content Include="PIL\_imagingft.pyd" />
+    <Content Include="PIL\_imagingmath.pyd" />
+    <Content Include="PIL\_imagingmorph.pyd" />
+    <Content Include="PIL\_imagingtk.pyd" />
+    <Content Include="PIL\_util.pyc" />
+    <Content Include="PIL\_webp.pyd" />
+    <Content Include="PIL\__init__.pyc" />
+    <Content Include="serial\aio.pyc" />
+    <Content Include="serial\rfc2217.pyc" />
+    <Content Include="serial\rs485.pyc" />
+    <Content Include="serial\serialcli.pyc" />
+    <Content Include="serial\serialjava.pyc" />
+    <Content Include="serial\serialposix.pyc" />
+    <Content Include="serial\serialutil.pyc" />
+    <Content Include="serial\serialwin32.pyc" />
+    <Content Include="serial\threaded\__init__.pyc" />
+    <Content Include="serial\tools\hexlify_codec.pyc" />
+    <Content Include="serial\tools\list_ports.pyc" />
+    <Content Include="serial\tools\list_ports_common.pyc" />
+    <Content Include="serial\tools\list_ports_linux.pyc" />
+    <Content Include="serial\tools\list_ports_osx.pyc" />
+    <Content Include="serial\tools\list_ports_posix.pyc" />
+    <Content Include="serial\tools\list_ports_windows.pyc" />
+    <Content Include="serial\tools\miniterm.pyc" />
+    <Content Include="serial\tools\__init__.pyc" />
+    <Content Include="serial\urlhandler\protocol_alt.pyc" />
+    <Content Include="serial\urlhandler\protocol_hwgrep.pyc" />
+    <Content Include="serial\urlhandler\protocol_loop.pyc" />
+    <Content Include="serial\urlhandler\protocol_rfc2217.pyc" />
+    <Content Include="serial\urlhandler\protocol_socket.pyc" />
+    <Content Include="serial\urlhandler\protocol_spy.pyc" />
+    <Content Include="serial\urlhandler\__init__.pyc" />
+    <Content Include="serial\win32.pyc" />
+    <Content Include="serial\__init__.pyc" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <PtvsTargetsFile>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets</PtvsTargetsFile>
+  </PropertyGroup>
+  <Import Condition="Exists($(PtvsTargetsFile))" Project="$(PtvsTargetsFile)" />
+  <Import Condition="!Exists($(PtvsTargetsFile))" Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
+  <!-- Uncomment the CoreCompile target to enable the Build command in
+       Visual Studio and specify your pre- and post-build commands in
+       the BeforeBuild and AfterBuild targets below. -->
+  <!--<Target Name="CoreCompile" />-->
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+</Project>
