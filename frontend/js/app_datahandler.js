@@ -207,53 +207,53 @@ DataHandler = {
             raster += "G8 D";
 
             if (reverse == 0) {
-	            for (var x = 0; x < pixwidth; x += pppX) {
-	              var pixel = line + Math.round(x);
-	              if (data[pixel] == 0) {
-	                raster += "1";
+                for (var x = 0; x < pixwidth; x += pppX) {
+                  var pixel = line + Math.round(x);
+                  if (data[pixel] == 0) {
+                    raster += "1";
                     empty = 0;
-	              } else {
-	                raster += "0";
-	              }
-	              count++;
-	              if (count % 70 == 0) {
-	                  raster += "\nG8 D";
-	              }
-	            }
+                  } else {
+                    raster += "0";
+                  }
+                  count++;
+                  if (count % 70 == 0) {
+                      raster += "\nG8 D";
+                  }
+                }
             } else {
-	            for (var x = pixwidth - 1; x >= 0; x -= pppX) {
-	              var pixel = line + Math.round(x);
-	              if (data[pixel] == 0) {
-	                raster += "1";
+                for (var x = pixwidth - 1; x >= 0; x -= pppX) {
+                  var pixel = line + Math.round(x);
+                  if (data[pixel] == 0) {
+                    raster += "1";
                     empty = 0;
-	              } else {
-	                raster += "0";
-	              }
-	              count++;
-	              if (count % 70 == 0) {
-	                  raster += "\nG8 D";
-	              }
-	            }
+                  } else {
+                    raster += "0";
+                  }
+                  count++;
+                  if (count % 70 == 0) {
+                      raster += "\nG8 D";
+                  }
+                }
             }
             if (empty == 0) {
                 if (reverse == 0) {
-	                glist.push("G8 R0\n");
-		            reverse = 1;
+                    glist.push("G8 R0\n");
+                    reverse = 1;
                 } else {
-	                glist.push("G8 R1\n");
-		            reverse = 0;
+                    glist.push("G8 R1\n");
+                    reverse = 0;
                 }
                 glist.push(raster + "\n");
-	            glist.push("G8 N0\n");
+                glist.push("G8 N0\n");
             }
             else {
 // C:刻印不具合修正 Start
                 glist.push("G00X"+(x1).toFixed(app_settings.num_digits)+"Y"+(y1 + (dot_pitch * LineCnt)).toFixed(app_settings.num_digits)+"\n");
                 reverse = 0;
 //                if (reverse == 0) {
-//		          glist.push("G00X"+(x1).toFixed(app_settings.num_digits)+"Y"+(y1 + (dot_pitch * LineCnt)).toFixed(app_settings.num_digits)+"\n");
+//                glist.push("G00X"+(x1).toFixed(app_settings.num_digits)+"Y"+(y1 + (dot_pitch * LineCnt)).toFixed(app_settings.num_digits)+"\n");
 //                } else {
-//		          glist.push("G00X"+(x1 + width).toFixed(app_settings.num_digits)+"Y"+(y1 + (dot_pitch * LineCnt)).toFixed(app_settings.num_digits)+"\n");
+//                glist.push("G00X"+(x1 + width).toFixed(app_settings.num_digits)+"Y"+(y1 + (dot_pitch * LineCnt)).toFixed(app_settings.num_digits)+"\n");
 //                }
 // C:刻印不具合修正 End
             }
@@ -374,7 +374,7 @@ DataHandler = {
             x_prev = x;
             y_prev = y;
             canvas.stroke(color);
-            for (vertex=1; vertex<path.length; vertex++) {
+            for (var vertex=1; vertex<path.length; vertex++) {
               var x = path[vertex][0]*scale;
               var y = path[vertex][1]*scale;
               canvas.line(x_prev, y_prev, x, y);
@@ -559,7 +559,7 @@ DataHandler = {
           this.bboxExpand(bbox_color, x, y);
           x_prev = x;
           y_prev = y;
-          for (vertex=1; vertex<path.length; vertex++) {
+          for (var vertex=1; vertex<path.length; vertex++) {
             var x = path[vertex][0];
             var y = path[vertex][1];
             path_lenths_color += 
@@ -607,8 +607,8 @@ DataHandler = {
           this.bboxExpand(bbox_color, x, y);
           this.bboxExpand(bbox_color, x + width, y + height);
         }
-	  }
-	  if (rasters.length) {
+      }
+      if (rasters.length) {
         stats_by_color[color] = {
           'bbox':bbox_color,
           'length':raster_lengths_color
@@ -647,7 +647,7 @@ DataHandler = {
   getJobBbox : function() {
     var total_bbox = [Infinity, Infinity, 0, 0];
     for (var color in this.getPassesColors()) {
-      stat = this.stats_by_color[color];
+      var stat = this.stats_by_color[color];
       this.bboxExpand(total_bbox, stat['bbox'][0], stat['bbox'][1]);
       this.bboxExpand(total_bbox, stat['bbox'][2], stat['bbox'][3]);
     }
@@ -680,7 +680,7 @@ DataHandler = {
           // ignore seek lines for now
           x_prev = x;
           y_prev = y;
-          for (vertex=1; vertex<path.length; vertex++) {
+          for (var vertex=1; vertex<path.length; vertex++) {
             var x = path[vertex][0];
             var y = path[vertex][1];
             d2 = (x-x_prev)*(x-x_prev) + (y-y_prev)*(y-y_prev);
