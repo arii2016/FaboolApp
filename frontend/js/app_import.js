@@ -92,60 +92,29 @@ $(document).ready(function(){
     if (filedata.length > 102400) {
       $().uxmessage('notice', "大容量のファイルの場合、読み込みに数分かかることがあります。");
     }
-    $.ajax({
-      type: "POST",
-      url: "/file_reader",
-      data: {'filename':filename,
-             'filedata':filedata, 
-             'dpi':forceSvgDpiTo, 
-             'optimize':path_optimize,
-             'dimensions':JSON.stringify(app_settings.work_area_dimensions)},
-      dataType: "json",
-      success: function (data) {
-        if (ext == '.svg' || ext == '.SVG') {
-          $().uxmessage('success', "SVG解析完了."); 
-          $('#dpi_import_info').html('ピクセル単位を<b>' + data.dpi + 'dpi</b>で変換');
-        } else if (ext == '.dxf' || ext == '.DXF') {
-          $().uxmessage('success', "DXF解析完了."); 
-          $('#dpi_import_info').html('単位mmでDXFファイルを読み込み');
-        } else if (ext == '.ngc' || ext == '.NGC') {
-          $().uxmessage('success', "Gコード解析完了."); 
-        } else {
-          $().uxmessage('warning', "指定のファイルはサポートしていません。SVG、DXF、Gコードファイルを指定してください。"); 
-        }
-        // alert(JSON.stringify(data));
-        handleParsedGeometry(data);
-      },
-      error: function (data) {
-        $().uxmessage('error', "バックエンドエラー");
-      },
-      complete: function (data) {
-        $('#file_import_btn').button('reset');
-        forceSvgDpiTo = undefined;  // reset
-      }
-    });
+
+    var geo_boundarys = SVGReader.parse(filedata, {'optimize':path_optimize, 'dpi':forceSvgDpiTo})
+    handleParsedGeometry(geo_boundarys);
+
+    $('#file_import_btn').button('reset');
+    forceSvgDpiTo = undefined;  // reset
+
   }
       
   function handleParsedGeometry(data) {
 // C:Raster Start
 //    // data is a dict with the following keys [boundarys, dpi, lasertags]
     // data is a dict with the following keys [boundarys, dpi, lasertags, rasters]
-    var rasters = data.rasters;
 // C:Raster End
-    var boundarys = data.boundarys;
+    var boundarys = data;
 // C:Raster Start
 //    if (boundarys) {
-    if (boundarys || rasters) {
+    if (boundarys) {
 // C:Raster End
       DataHandler.setByPaths(boundarys);
       if (path_optimize) {
         DataHandler.segmentizeLongLines();
       }
-// I:Raster Start
-      if (rasters) {
-        DataHandler.addRasters(rasters);
-      }
-// I:Raster End
       // some init
       $('#canvas_properties .colorbtns').html('');  // reset colors
       canvas.background('#ffffff');
