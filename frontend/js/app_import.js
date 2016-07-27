@@ -127,31 +127,75 @@ $(document).ready(function(){
 //      }       
 //    });
     var geo_boundarys = SVGReader.parse(filedata, {'optimize':path_optimize, 'dpi':forceSvgDpiTo, 'target_size':JSON.stringify(app_settings.work_area_dimensions)})
-    handleParsedGeometry(geo_boundarys);
 
+    if (geo_boundarys.rasters.length > 0) {
+        LoadImageData(geo_boundarys);
+    }
+    else {
+        handleParsedGeometry(geo_boundarys);
+    }
     $('#file_import_btn').button('reset');
     forceSvgDpiTo = undefined;  // reset
+
 // C:FABOOL End
 
   }
-      
+  function LoadImageData(data) {
+    var rasters = data.rasters;
+    var imageArr = [];
+    var loadCnt = 0;
+    for (var i = 0; i < rasters.length; i++) {
+        imageArr.push(new Image());
+        imageArr[i].onload = finish(i);
+        imageArr[i].src = rasters[i][2];
+        function finish(i){
+            return function(){
+                // データーURLを削除する
+                rasters[i].pop();
+                // 画像サイズを追加
+                rasters[i].push([imageArr[i].width, imageArr[i].height]);
+
+                // 画像を追加
+                var canvas = document.createElement("canvas");
+                var context = canvas.getContext('2d');
+                canvas.width = imageArr[i].width;
+                canvas.height = imageArr[i].height;
+                context.drawImage(imageArr[i], 0, 0);
+
+                var width = canvas.width;
+                var height = canvas.height;
+                var imageData = new Array(width * height);
+                var srcData = context.getImageData(0, 0, width, height);
+                var src = srcData.data;
+                for (var j = 0; j < height; j++) {
+                    for (var k = 0; k < width; k++) {
+                        imageData[k + j * width] = src[(k + j * width) * 4];
+                    }
+                }
+                rasters[i].push(imageData);
+
+
+                loadCnt++;
+                if (rasters.length == loadCnt) {
+                    // すべての画像を変換したら次の処理へ
+                    handleParsedGeometry(data);
+                }
+            }
+        }
+    }
+  }
+
   function handleParsedGeometry(data) {
-// C:FABOOL Start
-//  var boundarys = data.boundarys;
-//    var rasters = data.rasters;
-//    if (boundarys || rasters) {
-    var boundarys = data;
-    if (boundarys) {
-// C:FABOOL End
+    var boundarys = data.boundarys;
+    var rasters = data.rasters;
+    if (boundarys || rasters) {
       DataHandler.setByPaths(boundarys);
       if (path_optimize) {
         DataHandler.segmentizeLongLines();
       }
-// D: FABOOL Start
-//      if (rasters) {      
-//        DataHandler.addRasters(rasters);      
-//      }       
-// D: FABOOL End
+      if (rasters) {
+        DataHandler.addRasters(rasters);
+      }
        // some init
       $('#canvas_properties .colorbtns').html('');  // reset colors
       canvas.background('#ffffff');

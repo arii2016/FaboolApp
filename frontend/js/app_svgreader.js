@@ -36,6 +36,7 @@
 SVGReader = {
   
   boundarys : {},
+  rasters : [],
     // output path flattened (world coords)
     // hash of path by color
     // each path is a list of subpaths
@@ -65,6 +66,7 @@ SVGReader = {
   parse : function(svgstring, config) {
     this.join_count = 0;
     this.boundarys = {};
+    this.rasters = [];
     if ('optimize' in config) {
       this.optimize = config['optimize'];
     }
@@ -190,7 +192,8 @@ SVGReader = {
       }
     }
     
-    return this.boundarys
+    return { boundarys : this.boundarys, rasters : this.rasters};
+    
   },
   
   
@@ -221,6 +224,9 @@ SVGReader = {
           // and inherit from parent
           var node = {}
           node.path = [];
+// I:FABOOL Start
+          node.image = [];
+// I:FABOOL End
           node.xform = [1,0,0,1,0,0];
           node.opacity = parentNode.opacity;
           node.display = parentNode.display;
@@ -279,7 +285,20 @@ SVGReader = {
             } else {
               this.boundarys[hexcolor] = [subpath];
             }
-          }                 
+          }
+// I:FABOOL Start
+          for (var k=0; k<node.image.length; k++) {
+            var subimage = node.image[k];
+
+            subimage[0] = this.matrixApply(node.xformToWorld, subimage[0]);
+            subimage[0] = this.vertexScale(subimage[0], 25.4/this.dpi);
+
+            subimage[1] = this.matrixApply(node.xformToWorld, subimage[1]);
+            subimage[1] = this.vertexScale(subimage[1], 25.4/this.dpi);
+
+            this.rasters.push(subimage);
+          }
+// I:FABOOL End
         }
         
         // recursive call
@@ -685,8 +704,19 @@ SVGReader = {
     },    
     
     image : function(parser, tag, node) {
-      // not supported
       // has transform and style attributes
+      var x = parser.parseUnit(tag.getAttribute('x')) || 0;
+      var y = parser.parseUnit(tag.getAttribute('y')) || 0;
+      var width = parser.parseUnit(tag.getAttribute('width')) || 0;
+      var height = parser.parseUnit(tag.getAttribute('height')) || 0;
+      var data_url = tag.getAttribute('xlink:href');
+
+      var imageData = [];
+      imageData.push([x, y]);
+      imageData.push([width, height]);
+      imageData.push(data_url);
+
+      node.image.push(imageData);
     },
     
     defs : function(parser, tag, node) {
