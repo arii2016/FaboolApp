@@ -93,29 +93,66 @@ $(document).ready(function(){
       $().uxmessage('notice', "大容量のファイルの場合、読み込みに数分かかることがあります。");
     }
 
-    var geo_boundarys = SVGReader.parse(filedata, {'optimize':path_optimize, 'dpi':forceSvgDpiTo})
+// C:FABOOL Start
+//    $.ajax({       +
+//      type: "POST",        +    var geo_boundarys = SVGReader.parse(filedata, {'optimize':path_optimize, 'dpi':forceSvgDpiTo})
+//      url: "/file_reader",         +    handleParsedGeometry(geo_boundarys);
+//      data: {'filename':filename,      +
+//             'filedata':filedata,          +    $('#file_import_btn').button('reset');
+//             'dpi':forceSvgDpiTo,          +    forceSvgDpiTo = undefined;  // reset
+//             'optimize':path_optimize,         +
+//             'dimensions':JSON.stringify(app_settings.work_area_dimensions)},     
+//      dataType: "json",       
+//      success: function (data) {      
+//        if (ext == '.svg' || ext == '.SVG') {     
+//          $().uxmessage('success', "SVG解析完了.");       
+//          $('#dpi_import_info').html('ピクセル単位を<b>' + data.dpi + 'dpi</b>で変換');       
+//        } else if (ext == '.dxf' || ext == '.DXF') {      
+//          $().uxmessage('success', "DXF解析完了.");       
+//          $('#dpi_import_info').html('単位mmでDXFファイルを読み込み');        
+//        } else if (ext == '.ngc' || ext == '.NGC') {      
+//          $().uxmessage('success', "Gコード解析完了.");       
+//        } else {      
+//          $().uxmessage('warning', "指定のファイルはサポートしていません。SVG、DXF、Gコードファイルを指定してください。");        
+//        }     
+//        // alert(JSON.stringify(data));       
+//        handleParsedGeometry(data);       
+//      },      
+//      error: function (data) {        
+//        $().uxmessage('error', "バックエンドエラー");     
+//      },      
+//      complete: function (data) {     
+//        $('#file_import_btn').button('reset');        
+//        forceSvgDpiTo = undefined;  // reset      
+//      }       
+//    });
+    var geo_boundarys = SVGReader.parse(filedata, {'optimize':path_optimize, 'dpi':forceSvgDpiTo, 'target_size':JSON.stringify(app_settings.work_area_dimensions)})
     handleParsedGeometry(geo_boundarys);
 
     $('#file_import_btn').button('reset');
     forceSvgDpiTo = undefined;  // reset
+// C:FABOOL End
 
   }
       
   function handleParsedGeometry(data) {
-// C:Raster Start
-//    // data is a dict with the following keys [boundarys, dpi, lasertags]
-    // data is a dict with the following keys [boundarys, dpi, lasertags, rasters]
-// C:Raster End
+// C:FABOOL Start
+//  var boundarys = data.boundarys;
+//    var rasters = data.rasters;
+//    if (boundarys || rasters) {
     var boundarys = data;
-// C:Raster Start
-//    if (boundarys) {
     if (boundarys) {
-// C:Raster End
+// C:FABOOL End
       DataHandler.setByPaths(boundarys);
       if (path_optimize) {
         DataHandler.segmentizeLongLines();
       }
-      // some init
+// D: FABOOL Start
+//      if (rasters) {      
+//        DataHandler.addRasters(rasters);      
+//      }       
+// D: FABOOL End
+       // some init
       $('#canvas_properties .colorbtns').html('');  // reset colors
       canvas.background('#ffffff');
 
@@ -137,11 +174,13 @@ $(document).ready(function(){
         generatePreview();
       });
 
-      // default selections for pass widgets, lasertags handling
-      if (data.lasertags) {
-        $().uxmessage('notice', "lasertags -> applying defaults");
-        DataHandler.setPassesFromLasertags(data.lasertags);
-      }
+// D:FABOOL Start
+//      // default selections for pass widgets, lasertags handling
+//      if (data.lasertags) {
+//        $().uxmessage('notice', "lasertags -> applying defaults");
+//        DataHandler.setPassesFromLasertags(data.lasertags);
+//      }
+// D:FABOOL End
       // actually redraw right now 
       generatePreview();      
     } else {
