@@ -393,9 +393,11 @@ function handleParsedGeometry(dataArr) {
     DataHandler.setData(dataArr);
 
     // とりあえず固定で設定
-    DataHandler.clearPasses();
-    var datas = DataHandler.getColorOrder();
-    DataHandler.addPass({'datas':datas, 'feedrate':5000, 'intensity':100});
+    for (var i = 0; i < dataArr.length; i++) {
+        DataHandler.clearPasses(i);
+        var colors = DataHandler.getColorOrder(i);
+        DataHandler.addPass(i, {'colors':colors, 'feedrate':5000, 'intensity':100});
+    }
 
 
     var job_bbox = DataHandler.getJobBbox();

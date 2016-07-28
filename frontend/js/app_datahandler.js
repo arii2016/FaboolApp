@@ -7,7 +7,7 @@ DataHandler = {
     data_num : 0,
     paths_by_color : [],
     rasters_by_color : [],
-    passes : [],
+    data_passes : [],
     stats_by_color : [],
 
 
@@ -15,14 +15,15 @@ DataHandler = {
         this.data_num = 0;
         this.paths_by_color = [];
         this.rasters_by_color = [];
-        this.passes = [];
+        this.data_passes = [];
         this.stats_by_color = [];
     },
 
-    addColor : function() {
+    addData : function() {
         this.data_num++;
         this.paths_by_color.push({});
         this.rasters_by_color.push({});
+        this.data_passes.push([]);
         this.stats_by_color.push({});
     },
 
@@ -46,7 +47,7 @@ DataHandler = {
         this.clear();
 
         for (var i = 0; i < dataArr.length; i++) {
-            this.addColor();
+            this.addData();
             this.setByPaths(i, dataArr[i].boundarys);
             this.segmentizeLongLines(i);
             this.addRasters(i, dataArr[i].rasters);
@@ -101,17 +102,20 @@ DataHandler = {
         glist.push("G90\nM80\n");
         glist.push("G0F"+app_settings.max_seek_speed+"\n");
 
-        // passes
-        for (var i=0; i<this.passes.length; i++) {
-            var pass = this.passes[i];
-            var feedrate = this.mapConstrainFeedrate(pass['feedrate']);
-            var intensity = this.mapConstrainIntesity(pass['intensity']);
-            glist.push("G1F"+feedrate+"\nS"+intensity+"\n");
-            for (var j = 0; j < pass.datas.length; j++) {
-                var colors = pass.datas[j]
-                for (var c in colors) {
+        for (var i=0; i<this.data_num; i++) {
+            var passes = this.data_passes[i];
+
+            // passes
+            for (var j = 0; j < passes.length; j++) {
+                var pass = passes[j];
+                var colors = pass['colors'];
+                var feedrate = this.mapConstrainFeedrate(pass['feedrate']);
+                var intensity = this.mapConstrainIntesity(pass['intensity']);
+                glist.push("G1F"+feedrate+"\nS"+intensity+"\n");
+
+                for (var color in colors) {
                     // Rasters
-                    var rasters = this.rasters_by_color[j][c];
+                    var rasters = this.rasters_by_color[i][color];
                     for (var k=0; k<rasters.length; k++) {
                         var raster = rasters[k];
 
@@ -203,7 +207,7 @@ DataHandler = {
                         }
                     }
                     // Paths
-                    var paths = this.paths_by_color[j][c];
+                    var paths = this.paths_by_color[i][color];
                     for (var k=0; k<paths.length; k++) {
                         var path = paths[k];
                         if (path.length > 0) {
@@ -231,7 +235,6 @@ DataHandler = {
   getBboxGcode : function() {
     var bbox = this.getJobBbox();
     var glist = [];
-    glist.push("~\nG30\n");     // 原点復帰
     glist.push("G90\n");
     glist.push("G0F"+app_settings.max_seek_speed+"\n");
     glist.push("G00X"+bbox[0].toFixed(3)+"Y"+bbox[1].toFixed(3)+"\n");
@@ -245,49 +248,42 @@ DataHandler = {
 
   // passes and colors //////////////////////////
 
-  addPass : function(mapping) {
+  addPass : function(idx, mapping) {
     // this describes in what order colors are written
     // and also what intensity and feedrate is used
     // mapping: {'colors':colors, 'feedrate':feedrate, 'intensity':intensity}
-    this.passes.push(mapping);
+    this.data_passes[idx].push(mapping);
   },
 
-  clearPasses : function() {
-    this.passes = [];
+  clearPasses : function(idx) {
+    this.data_passes[idx] = [];
   },
 
-    getPassesColors : function() {
-        var all_colors = [];
-        for (var i = 0; i < this.data_num; i++) {
-            all_colors.push({});
-        }
-        for (var i = 0; i < this.passes.length; i++) {
-            var pass = this.passes[i];
-            for (var j = 0; j < pass.datas.length; j++) {
-                var colors = pass.datas[j]
-                for (var c in colors) {
-                    all_colors[j][c] = true;
-                }
+    getPassesColors : function(idx) {
+        var all_colors = {};
+        for (var i=0; i<this.data_passes[idx].length; i++) {
+            var mapping = this.data_passes[idx][i];
+            var colors = mapping['colors'];
+            for (var color in colors) {
+                all_colors[color] = true;
             }
         }
         return all_colors;
     },
 
-    getColorOrder : function() {
-        var color_order = [];
+    getColorOrder : function(idx) {
+        var color_order = {};
 
-        for (var i = 0; i < this.data_num; i++) {
-            color_order.push({});
-            var color_count = 0;
-            for (var color in this.rasters_by_color[i]) {
-                color_order[i][color] = color_count;
-                color_count++;
-            }
-            for (var color in this.paths_by_color[i]) {    
-                color_order[i][color] = color_count;
-                color_count++;
-            }
+        var color_count = 0;
+        for (var color in this.rasters_by_color[idx]) {
+            color_order[color] = color_count;
+            color_count++;
         }
+        for (var color in this.paths_by_color[idx]) {    
+            color_order[color] = color_count;
+            color_count++;
+        }
+
         return color_order
     },
 
@@ -376,10 +372,8 @@ DataHandler = {
 
   getJobPathLength : function() {
     var total_length = 0;
-
-    var dataColor = this.getPassesColors();
     for (var i = 0; i < this.data_num; i++) {
-        for (var color in dataColor[i]) {
+        for (var color in this.getPassesColors(i)) {
           stat = this.stats_by_color[i][color];
           total_length += stat['length'];
         }
@@ -391,12 +385,11 @@ DataHandler = {
   getJobBbox : function() {
     var total_bbox = [Infinity, Infinity, 0, 0];
 
-    var dataColor = this.getPassesColors();
     for (var i = 0; i < this.data_num; i++) {
-        for (var color in dataColor[i]) {
-          var stat = this.stats_by_color[i][color];
-          this.bboxExpand(total_bbox, stat['bbox'][0], stat['bbox'][1]);
-          this.bboxExpand(total_bbox, stat['bbox'][2], stat['bbox'][3]);
+        for (var color in this.getPassesColors(i)) {
+            stat = this.stats_by_color[i][color];
+            this.bboxExpand(total_bbox, stat['bbox'][0], stat['bbox'][1]);
+            this.bboxExpand(total_bbox, stat['bbox'][2], stat['bbox'][3]);
         }
     }
 
