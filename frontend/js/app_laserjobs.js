@@ -342,23 +342,24 @@ function LoadImageData(dataArr) {
     var imageArr = [];
     var loadCnt = 0;
     for (var i = 0; i < dataArr.length; i++) {
+        imageArr[i] = [];
         for (var j = 0; j < dataArr[i].rasters.length; j++) {
-            imageArr.push(new Image());
-            imageArr[j].onload = finish(i, j);
-            imageArr[j].src = dataArr[i].rasters[j][2];
+            imageArr[i].push(new Image());
+            imageArr[i][j].onload = finish(i, j);
+            imageArr[i][j].src = dataArr[i].rasters[j][2];
             function finish(i, j){
                 return function(){
                     // データーURLを削除する
                     dataArr[i].rasters[j].pop();
                     // 画像サイズを追加
-                    dataArr[i].rasters[j].push([imageArr[j].width, imageArr[j].height]);
+                    dataArr[i].rasters[j].push([imageArr[i][j].width, imageArr[i][j].height]);
 
                     // 画像を追加
                     var canvas = document.createElement("canvas");
                     var context = canvas.getContext('2d');
-                    canvas.width = imageArr[j].width;
-                    canvas.height = imageArr[j].height;
-                    context.drawImage(imageArr[j], 0, 0);
+                    canvas.width = imageArr[i][j].width;
+                    canvas.height = imageArr[i][j].height;
+                    context.drawImage(imageArr[i][j], 0, 0);
 
                     var width = canvas.width;
                     var height = canvas.height;
