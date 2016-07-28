@@ -506,5 +506,75 @@ $(document).ready(function(){
     $('#tab_logs_button').trigger('click');
     return false;
   });
-  
+
+    fileToSvg = new FileToSvg();
+    warkcanvas = new warkCanvas('warkcanvas', app_settings.work_area_dimensions[0], app_settings.work_area_dimensions[1], 800);
+
+    window.addEventListener("DOMContentLoaded", function(){
+
+        //ファイルオープンの際のイベント
+        document.getElementById("selectfile").addEventListener("change", function(evt) {
+
+            // ファイルをSVGに変換しCanvasクラスにセットする
+            fileToSvg.LoadToSvg(evt.target.files[0], warkcanvas.addObj);
+
+            // 選択されたファイルをクリア
+            $('input[type=file]').val('');
+        }, false);
+        document.getElementById("selectJsonfile").addEventListener("change", function(evt) {
+            var reader = new FileReader();
+            var file = evt.target.files[0];
+            var ext = file['name'].slice(-5).toUpperCase();   // 拡張子
+
+            if (ext == '.JSON') {
+                reader.onload = function(e) {
+                    var jsonString = e.target.result;
+                    warkcanvas.load(jsonString);
+                };
+                reader.readAsText(file);
+            }
+
+            // 選択されたファイルをクリア
+            $('input[type=file]').val('');
+        }, false);
+    });
+
+    $("#warkcanvas_undo").click(function(e) {
+        warkcanvas.undo();
+    });
+    $("#warkcanvas_copy").click(function(e) {
+        warkcanvas.copyObj();
+    });
+    $("#warkcanvas_paste").click(function(e) {
+        warkcanvas.pasteObj();
+    });
+    $("#warkcanvas_delete").click(function(e) {
+        warkcanvas.deleteOneObj();
+    });
+    $("#warkcanvas_alldelete").click(function(e) {
+        warkcanvas.deleteAllObj();
+    });
+    $("#warkcanvas_zoomin").click(function(e) {
+        warkcanvas.zoomIn();
+    });
+    $("#warkcanvas_zoomout").click(function(e) {
+        warkcanvas.zoomOut();
+    });
+    $("#warkcanvas_resetzoom").click(function(e) {
+        warkcanvas.resetZoom();
+    });
+    $("#warkcanvas_jsonsave").click(function(e) {
+        var jsonString = warkcanvas.save();
+
+        var blob = new Blob([ jsonString ], { "type" : "text/plain" });
+        var a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.target = '_blank';
+        a.download = 'canvas.json';
+        a.click();
+    });
+
 });  // ready
+
+var fileToSvg;
+var warkcanvas;

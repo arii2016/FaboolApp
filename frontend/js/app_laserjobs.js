@@ -333,6 +333,82 @@ function writePassesWidget() {
 
 
 
+function LoadImageData(dataArr) {
+    // 読み込み画像数取得
+    var LoadImgNum = 0;
+    for (var i = 0; i < dataArr.length; i++) {
+        LoadImgNum = LoadImgNum + dataArr[i].rasters.length;
+    }
+    var imageArr = [];
+    var loadCnt = 0;
+    for (var i = 0; i < dataArr.length; i++) {
+        for (var j = 0; j < dataArr[i].rasters.length; j++) {
+            imageArr.push(new Image());
+            imageArr[j].onload = finish(i, j);
+            imageArr[j].src = dataArr[i].rasters[j][2];
+            function finish(i, j){
+                return function(){
+                    // データーURLを削除する
+                    dataArr[i].rasters[j].pop();
+                    // 画像サイズを追加
+                    dataArr[i].rasters[j].push([imageArr[j].width, imageArr[j].height]);
+
+                    // 画像を追加
+                    var canvas = document.createElement("canvas");
+                    var context = canvas.getContext('2d');
+                    canvas.width = imageArr[j].width;
+                    canvas.height = imageArr[j].height;
+                    context.drawImage(imageArr[j], 0, 0);
+
+                    var width = canvas.width;
+                    var height = canvas.height;
+                    var imageData = new Array(width * height);
+                    var srcData = context.getImageData(0, 0, width, height);
+                    var src = srcData.data;
+                    for (var k= 0; k < height; k++) {
+                        for (var l = 0; l < width;l++) {
+                            imageData[l + k * width] = src[(l + k * width) * 4];
+                        }
+                    }
+                    dataArr[i].rasters[j].push(imageData);
+
+
+                    loadCnt++;
+                    if (LoadImgNum == loadCnt) {
+                        // すべての画像を変換したら次の処理へ
+                        if (handleParsedGeometry(dataArr) == true) {
+                            send_gcode(DataHandler.getGcode(), "G-Code sent to backend.", true);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+function handleParsedGeometry(dataArr) {
+
+    // すべてのデーターを設定
+    DataHandler.setData(dataArr);
+
+    // とりあえず固定で設定
+    DataHandler.clearPasses();
+    var datas = DataHandler.getColorOrder();
+    DataHandler.addPass({'datas':datas, 'feedrate':5000, 'intensity':100});
+
+
+    var job_bbox = DataHandler.getJobBbox();
+    if (job_bbox[0] < 0 ||
+        job_bbox[1] < 0 ||
+        job_bbox[2] > app_settings.work_area_dimensions[0] ||
+        job_bbox[3] > app_settings.work_area_dimensions[1])
+    {
+        $().uxmessage('warning', "作業領域外になります。");
+        return false;
+    }
+
+    return true;
+}
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -372,44 +448,61 @@ $(document).ready(function(){
 
   $("#progressbar").hide();  
   $("#job_submit").click(function(e) {
-    // send gcode string to server via POST
-    DataHandler.setByJson($('#job_data').val());
-    if (readPassesWidget()) {
-      var job_bbox = DataHandler.getJobBbox();
-      if (job_bbox[0] >= 0 &&
-          job_bbox[1] >= 0 &&
-          job_bbox[2] <= app_settings.work_area_dimensions[0] &&
-          job_bbox[3] <= app_settings.work_area_dimensions[1])
-      {
-        send_gcode(DataHandler.getGcode(), "G-Code sent to backend.", true);
-      } else {
-        $().uxmessage('warning', "作業領域外になります。");
-      }
-    } else {
-      $().uxmessage('warning', "色の選択がありません。加工する色を選択してください。");
+    // SVGデーター文字列を取得
+    var svgData = warkcanvas.getSvg();
+    if (svgData.length == 0) {
+        $().uxmessage('warning', "加工データーがありません！");
+        return;
     }
-    return false;
+    var outDpi = warkcanvas.getSvgDPI();
+
+    var boundarys_arr = [];
+    var rasterFlg = false;
+
+    for (var i = 0; i < svgData.length; i++) {
+        var boundarys = SVGReader.parse(svgData[i], {'optimize':1, 'dpi':90, 'target_size':JSON.stringify(app_settings.work_area_dimensions)})
+        boundarys_arr.push(boundarys);
+        if (boundarys.rasters.length > 0) {
+            rasterFlg = true;
+        }
+    }
+    if (rasterFlg) {
+        LoadImageData(boundarys_arr);
+    }
+    else {
+        if (handleParsedGeometry(boundarys_arr) == true) {
+            send_gcode(DataHandler.getGcode(), "G-Code sent to backend.", true);
+        }
+    }
+
   });
 
 
   $('#job_bbox_submit').tooltip();
   $("#job_bbox_submit").click(function(e) {
-    DataHandler.setByJson($('#job_data').val());
-    if (readPassesWidget()) {
-      var job_bbox = DataHandler.getJobBbox();
-      if (job_bbox[0] >= 0 &&
-          job_bbox[1] >= 0 &&
-          job_bbox[2] <= app_settings.work_area_dimensions[0] &&
-          job_bbox[3] <= app_settings.work_area_dimensions[1])
-      {
-        send_gcode(DataHandler.getBboxGcode(), "BBox G-Code sent to backend", true);
-      } else {
-        $().uxmessage('warning', "作業領域外になります。");
-      }
-    } else {
-      $().uxmessage('warning', "色の選択がありません。加工する色を選択してください。");
+    // SVGデーター文字列を取得
+    var svgData = warkcanvas.getSvg();
+    if (svgData.length == 0) {
+        $().uxmessage('warning', "加工データーがありません！");
+        return;
     }
-    return false;
+    var outDpi = warkcanvas.getSvgDPI();
+
+    var boundarys_arr = [];
+    var rasterFlg = false;
+
+    for (var i = 0; i < svgData.length; i++) {
+        var boundarys = SVGReader.parse(svgData[i], {'optimize':1, 'dpi':90, 'target_size':JSON.stringify(app_settings.work_area_dimensions)})
+        boundarys_arr.push(boundarys);
+        if (boundarys.rasters.length > 0) {
+            rasterFlg = true;
+        }
+    }
+
+    if (handleParsedGeometry(boundarys_arr) == true) {
+        send_gcode(DataHandler.getBboxGcode(), "G-Code sent to backend.", true);
+    }
+
   });
 
   $('#job_save_to_queue').tooltip();

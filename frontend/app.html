@@ -12,6 +12,11 @@
 <script src="/js/bootstrap.min.js"></script>
 <script src="/js/jquery.toastmessage.js"></script>
 <script src="/js/jquery.hotkeys.js"></script>
+<script src="./js/psd.min.js"></script>
+<script src="./js/snap.svg-min.js"></script>
+<script src="./js/fabric.min.js"></script>
+<script src="./js/filetosvg.js"></script>
+<script src="./js/warkcanvas.js"></script>
 <script src="/js/app_svgreader.js"></script>
 <script src="/js/settings.js"></script>
 <script src="/js/app_datahandler.js"></script>
@@ -20,7 +25,6 @@
 <script src="/js/app_laserjobs.js"></script>
 <script src="/js/app_mover.js"></script>
 <script src="/js/app_import.js"></script>
-
 </head>
 <body>
 
@@ -62,6 +66,36 @@
     <div id="container" class="container">
         <div class="row">
             <div class="span12">
+
+                <div>
+                    <input type="file" id="selectfile">
+                </div>
+                <div style="margin-top:5px; margin-bottom:5px;">
+                    <button id="warkcanvas_undo" class="btn btn-large btn-primary">Undo</button>
+                    <button id="warkcanvas_copy" class="btn btn-large btn-primary">Copy</button>
+                    <button id="warkcanvas_paste" class="btn btn-large btn-primary">Paste</button>
+                    <button id="warkcanvas_delete" class="btn btn-large btn-primary">Delete</button>
+                    <button id="warkcanvas_alldelete" class="btn btn-large btn-primary">AllDelete</button>
+                </div>
+                <div style="margin-top:5px; margin-bottom:5px;">
+                    <button id="warkcanvas_zoomin" class="btn btn-large btn-primary">ZoomIn</button>
+                    <button id="warkcanvas_zoomout" class="btn btn-large btn-primary">ZoomOut</button>
+                    <button id="warkcanvas_resetzoom" class="btn btn-large btn-primary">ResetZoom</button>
+                    <input type="file" value="Load" id="selectJsonfile" >
+                    <button id="warkcanvas_jsonsave" class="btn btn-large btn-primary">Save</button>
+                </div>
+                <div style="margin-top:5px; margin-bottom:5px;">
+                    <button id="job_submit" class="btn btn-large btn-primary">加工動作開始</button>
+                    <button id="job_bbox_submit" class="btn btn-large btn-primary" title="境界確認動作開始" data-delay="500">
+                        <span class="icon-resize-full icon-white"></span>
+                    </button>
+                </div>
+                <div style="margin-top:5px; margin-bottom:5px;">
+                    <canvas id="warkcanvas"style="border:1px solid;"></canvas>
+                </div>
+
+
+
                 <div class="tabbable row">
                     
                     <!--tabbar start-->
@@ -98,12 +132,6 @@
                                             </div>
                                         </div>
                                         <div style="padding-top:20px">
-                                            <div class="btn-group pull-left">
-                                                <button id="job_submit" class="btn btn-large btn-primary">　加工動作開始　</button>
-                                                <button id="job_bbox_submit" class="btn btn-large btn-primary" title="境界確認動作開始" data-delay="500">
-                                                    　<span class="icon-resize-full icon-white"></span>　
-                                                </button>
-                                            </div>
                                             <div id="stats_after_name" class="pull-left" style="margin-left:20px;padding-top:10px;color:#888888"></div>
                                             <div class="btn-group pull-right">
                                                 <a class="btn btn-large dropdown-toggle" data-toggle="dropdown" href="#">
@@ -265,8 +293,6 @@
             </div>
         </div>
     </div>
-
-
 </body>
 </html>
 
