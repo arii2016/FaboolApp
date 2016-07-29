@@ -4,6 +4,11 @@ var minNumPassWidgets = 3;
 var maxNumPassWidgets = 32;
 var preview_canvas_obj = null;
 
+var JOB_TYPE = {
+    PROCESS: 0,
+    BBOX: 1,
+    _SIZEOF : 2,
+};
 
 
 function load_into_job_widget(name, jobdata) {
@@ -331,74 +336,41 @@ function writePassesWidget() {
   }
 }
 
+function jobSubmit(jobType) {
+    if (warkcanvas.getStateChange()) {
+        // canvasが更新された場合のみデーターを取り込む
 
-
-function LoadImageData(dataArr) {
-    // 読み込み画像数取得
-    var LoadImgNum = 0;
-    for (var i = 0; i < dataArr.length; i++) {
-        LoadImgNum = LoadImgNum + dataArr[i].rasters.length;
-    }
-    var imageArr = [];
-    var loadCnt = 0;
-    for (var i = 0; i < dataArr.length; i++) {
-        imageArr[i] = [];
-        for (var j = 0; j < dataArr[i].rasters.length; j++) {
-            imageArr[i].push(new Image());
-            imageArr[i][j].onload = finish(i, j);
-            imageArr[i][j].src = dataArr[i].rasters[j][2];
-            function finish(i, j){
-                return function(){
-                    // データーURLを削除する
-                    dataArr[i].rasters[j].pop();
-                    // 画像サイズを追加
-                    dataArr[i].rasters[j].push([imageArr[i][j].width, imageArr[i][j].height]);
-
-                    // 画像を追加
-                    var canvas = document.createElement("canvas");
-                    var context = canvas.getContext('2d');
-                    canvas.width = imageArr[i][j].width;
-                    canvas.height = imageArr[i][j].height;
-                    context.drawImage(imageArr[i][j], 0, 0);
-
-                    var width = canvas.width;
-                    var height = canvas.height;
-                    var imageData = new Array(width * height);
-                    var srcData = context.getImageData(0, 0, width, height);
-                    var src = srcData.data;
-                    for (var k= 0; k < height; k++) {
-                        for (var l = 0; l < width;l++) {
-                            imageData[l + k * width] = src[(l + k * width) * 4];
-                        }
-                    }
-                    dataArr[i].rasters[j].push(imageData);
-
-
-                    loadCnt++;
-                    if (LoadImgNum == loadCnt) {
-                        // すべての画像を変換したら次の処理へ
-                        if (handleParsedGeometry(dataArr) == true) {
-                            send_gcode(DataHandler.getGcode(), "G-Code sent to backend.", true);
-                        }
-                    }
-                }
-            }
+        var svgData = warkcanvas.getSvg();      // SVGデーター文字列を取得
+        if (svgData.length == 0) {
+            $().uxmessage('warning', "加工データーがありません！");
+            return;
         }
+        var outDpi = warkcanvas.getSvgDPI();
+
+        var boundarys_arr = [];
+
+        for (var i = 0; i < svgData.length; i++) {
+            var boundarys = SVGReader.parse(svgData[i], {'optimize':1, 'dpi':90, 'target_size':JSON.stringify(app_settings.work_area_dimensions)})
+            // 画像の場合は、画像サイズを追加する
+            if (warkcanvas.getObjFileType(i) == FILE_TYPE.IMG) {
+                var size = warkcanvas.getObjImgSize(i);
+                boundarys.rasters[0].push([size.imgWidth, size.imgHeight]);
+            }
+
+            boundarys_arr.push(boundarys);
+        }
+
+        DataHandler.setData(boundarys_arr);
     }
-}
 
-function handleParsedGeometry(dataArr) {
+    var objNum = warkcanvas.getObjNum();
 
-    // すべてのデーターを設定
-    DataHandler.setData(dataArr);
-
-    // とりあえず固定で設定
-    for (var i = 0; i < dataArr.length; i++) {
+    // とりあえず固定で色を設定
+    for (var i = 0; i < objNum; i++) {
         DataHandler.clearPasses(i);
         var colors = DataHandler.getColorOrder(i);
-        DataHandler.addPass(i, {'colors':colors, 'feedrate':5000, 'intensity':100});
+        DataHandler.addPass(i, {'colors':colors, 'feedrate':3000, 'intensity':100});
     }
-
 
     var job_bbox = DataHandler.getJobBbox();
     if (job_bbox[0] < 0 ||
@@ -407,10 +379,18 @@ function handleParsedGeometry(dataArr) {
         job_bbox[3] > app_settings.work_area_dimensions[1])
     {
         $().uxmessage('warning', "作業領域外になります。");
-        return false;
+        return;
     }
 
-    return true;
+    if (jobType == JOB_TYPE.PROCESS) {
+        // 加工動作
+        DataHandler.jobProcess();
+    }
+    else if (jobType == JOB_TYPE.BBOX) {
+        // 加工エリア確認動作
+        send_gcode(DataHandler.getBboxGcode(), "G-Code sent to backend.", true);
+    }
+
 }
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -451,60 +431,16 @@ $(document).ready(function(){
 
   $("#progressbar").hide();  
   $("#job_submit").click(function(e) {
-    // SVGデーター文字列を取得
-    var svgData = warkcanvas.getSvg();
-    if (svgData.length == 0) {
-        $().uxmessage('warning', "加工データーがありません！");
-        return;
-    }
-    var outDpi = warkcanvas.getSvgDPI();
 
-    var boundarys_arr = [];
-    var rasterFlg = false;
-
-    for (var i = 0; i < svgData.length; i++) {
-        var boundarys = SVGReader.parse(svgData[i], {'optimize':1, 'dpi':90, 'target_size':JSON.stringify(app_settings.work_area_dimensions)})
-        boundarys_arr.push(boundarys);
-        if (boundarys.rasters.length > 0) {
-            rasterFlg = true;
-        }
-    }
-    if (rasterFlg) {
-        LoadImageData(boundarys_arr);
-    }
-    else {
-        if (handleParsedGeometry(boundarys_arr) == true) {
-            send_gcode(DataHandler.getGcode(), "G-Code sent to backend.", true);
-        }
-    }
+    jobSubmit(JOB_TYPE.PROCESS);
 
   });
 
 
   $('#job_bbox_submit').tooltip();
   $("#job_bbox_submit").click(function(e) {
-    // SVGデーター文字列を取得
-    var svgData = warkcanvas.getSvg();
-    if (svgData.length == 0) {
-        $().uxmessage('warning', "加工データーがありません！");
-        return;
-    }
-    var outDpi = warkcanvas.getSvgDPI();
 
-    var boundarys_arr = [];
-    var rasterFlg = false;
-
-    for (var i = 0; i < svgData.length; i++) {
-        var boundarys = SVGReader.parse(svgData[i], {'optimize':1, 'dpi':90, 'target_size':JSON.stringify(app_settings.work_area_dimensions)})
-        boundarys_arr.push(boundarys);
-        if (boundarys.rasters.length > 0) {
-            rasterFlg = true;
-        }
-    }
-
-    if (handleParsedGeometry(boundarys_arr) == true) {
-        send_gcode(DataHandler.getBboxGcode(), "G-Code sent to backend.", true);
-    }
+    jobSubmit(JOB_TYPE.BBOX);
 
   });
 

@@ -9,12 +9,12 @@ function FileToSvg()
     this.LoadToSvg = function(file, canvasFunc) {
         var reader = new FileReader();
         var ext = file['name'].slice(-4).toUpperCase();   // 拡張子
+        var colorArray = [];
 
         if (ext == '.SVG') {
             // SVGの読み込み
             reader.onload = function(e) {
                 var svgString = e.target.result;
-                var colorArray = [];
                 var strRet = svgToSvg(svgString, colorArray);
                 var dpi = getSvgDpi(svgString);
 
@@ -23,7 +23,7 @@ function FileToSvg()
                                 return self.indexOf(x) === i;
                             });
 
-                canvasFunc(strRet, FILE_TYPE.SVG, dpi, colorArray);
+                canvasFunc(strRet, FILE_TYPE.SVG, dpi, file['name'], colorArray, 0, 0);
             };
             reader.readAsText(file);
         }
@@ -32,8 +32,9 @@ function FileToSvg()
             reader.onload = function(e) {
                 var dxfString = e.target.result;
                 var strRet = dxfToSvg(dxfString);
+                colorArray.push("rgb(0, 0, 0)");
 
-                canvasFunc(strRet, FILE_TYPE.DXF, 90);
+                canvasFunc(strRet, FILE_TYPE.DXF, 90, file['name'], colorArray, 0, 0);
             };
             reader.readAsText(file);
         }
@@ -45,9 +46,10 @@ function FileToSvg()
                 psd.parse();
 
                 var img = psd.image.toPng();
-                var strRet = imgToSvg(img);
+                var Ret = imgToSvg(img);
 
-                canvasFunc(strRet, FILE_TYPE.IMG, 90);
+                colorArray.push("rgb(0, 0, 0)");
+                canvasFunc(Ret.svgString, FILE_TYPE.IMG, 90, file['name'], colorArray, Ret.width, Ret.height);
             };
             reader.readAsArrayBuffer(file);
         }
@@ -59,9 +61,10 @@ function FileToSvg()
                 var img = new Image();
 
                 img.onload = function(){
-                    var strRet = imgToSvg(img);
+                    var Ret = imgToSvg(img);
 
-                    canvasFunc(strRet, FILE_TYPE.IMG, 90);
+                    colorArray.push("rgb(0, 0, 0)");
+                    canvasFunc(Ret.svgString, FILE_TYPE.IMG, 90, file['name'], colorArray, Ret.width, Ret.height);
                 }
 
                 img.src = e.target.result;
@@ -496,11 +499,19 @@ function FileToSvg()
                 for (var i = 0; i < height; i++) {
                     for (var j = 0; j < width; j++) {
                         var idx = (j + i * width) * 4;
-                        var gray = (src[idx] + src[idx + 1] + src[idx + 2]) / 3;
-                        dst[idx] = gray;
-                        dst[idx + 1] = gray;
-                        dst[idx + 2] = gray;
-                        dst[idx + 3] = src[idx + 3];
+                        if (src[idx + 3] == 0) {
+                            dst[idx] = 255;
+                            dst[idx + 1] = 255;
+                            dst[idx + 2] = 255;
+                            dst[idx + 3] = 255;
+                        }
+                        else {
+                            var gray = (src[idx] + src[idx + 1] + src[idx + 2]) / 3;
+                            dst[idx] = gray;
+                            dst[idx + 1] = gray;
+                            dst[idx + 2] = gray;
+                            dst[idx + 3] = 255;
+                        }
                     }
                 }
             };
@@ -589,7 +600,11 @@ function FileToSvg()
         // SVGに変換
         retSvgStr = dataURLtoSVGString(imgData.dataUrl, imgData.width, imgData.height);
 
-        return retSvgStr;
+        return {
+            svgString: retSvgStr,
+            width: imgData.width,
+            height: imgData.height
+        };
     };
     // -------------------------------------------------------------
 }

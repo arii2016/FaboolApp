@@ -44,12 +44,15 @@ function warkCanvas(strCanvas, warkAreaWidth, warkAreaHeight, canvasWidth)
     var STATE_BUFFER_NUM = 4;
 
     // zoomIn・ZoomOut
-    var SCALE_FACTOR = 1.5;
-    var MAX_SCALE = 5;
+    var SCALE_FACTOR = 1.25;
+    var MAX_SCALE = 8;
+
+    // 出力変更ステータス(trueの場合、変更されたので、SVG出力が必要)
+    var stateChange = true;
 
     // -------------------------------------------------------------
     // オブジェクトを追加
-    this.addObj = function(svgString, fileType, dpi, colorArr) {
+    this.addObj = function(svgString, fileType, dpi, fileName, colorArr, imgWidth, imgHeight) {
 
         fabric.loadSVGFromString(svgString, function(objects, options) {
             var obj = fabric.util.groupSVGElements(objects, options);
@@ -60,8 +63,15 @@ function warkCanvas(strCanvas, warkAreaWidth, warkAreaHeight, canvasWidth)
             // DPIを保存
             obj.dpi = dpi;
 
+            // ファイル名を保存
+            obj.fileName = fileName;
+
             // 色情報を保存
             obj.colorArr = colorArr;
+
+            // 画像サイズを保存
+            obj.imgWidth = imgWidth;
+            obj.imgHeight = imgHeight;
 
             // 元の位置・スケールを保存
             obj.originTop = obj.top;
@@ -76,10 +86,12 @@ function warkCanvas(strCanvas, warkAreaWidth, warkAreaHeight, canvasWidth)
                         hasRotatingPoint: this.hasRotatingPoint,
                         lockRotation: this.lockRotation,
                         lockScalingFlip: this.lockScalingFlip,
-                        lockUniScaling: this.lockUniScaling,
                         fileType: this.fileType,
                         dpi: this.dpi,
+                        fileName: this.fileName,
                         colorArr: this.colorArr,
+                        imgWidth: this.imgWidth,
+                        imgHeight: this.imgHeight,
                         originTop: this.originTop,
                         originLeft: this.originLeft,
                         originScaleX: this.originScaleX,
@@ -95,8 +107,6 @@ function warkCanvas(strCanvas, warkAreaWidth, warkAreaHeight, canvasWidth)
                 obj.lockRotation = true;
                 // 反転できないようにする
                 obj.lockScalingFlip = true;
-                // 比率をかけて拡大・縮小できないようにする
-                obj.lockUniScaling = true;
             }
             // リサイズ
             resizeObj(obj);
@@ -135,6 +145,8 @@ function warkCanvas(strCanvas, warkAreaWidth, warkAreaHeight, canvasWidth)
     // オブジェクト追加イベント
     fabCanvas.on('object:added', function(options) {
         updateState();
+        // 変更ステータス
+        stateChange = true;
     });
     // -------------------------------------------------------------
     // オブジェクト移動後イベント
@@ -164,11 +176,15 @@ function warkCanvas(strCanvas, warkAreaWidth, warkAreaHeight, canvasWidth)
         }
 
         updateState();
+        // 変更ステータス
+        stateChange = true;
     });
     // -------------------------------------------------------------
     // オブジェクト削除イベント
     fabCanvas.on('object:removed', function(options) {
         updateState();
+        // 変更ステータス
+        stateChange = true;
     });
     // -------------------------------------------------------------
     // コピー
@@ -236,7 +252,19 @@ function warkCanvas(strCanvas, warkAreaWidth, warkAreaHeight, canvasWidth)
     // すべてのオブジェクトを削除
     this.deleteAllObj = function() {
         fabCanvas.clear().renderAll();
+        // 変更ステータス
+        stateChange = true;
     };
+    // -------------------------------------------------------------
+    // canvasの内容をオブジェクト数を取得
+    this.getObjNum = function() {
+        return fabCanvas.getObjects().length;
+    };
+    // -------------------------------------------------------------
+    // canvasがSVG出力の時から変更されたか取得
+    this.getStateChange = function() {
+        return stateChange;
+    }
     // -------------------------------------------------------------
     // canvasの内容をSVG文字列に出力
     this.getSvg = function() {
@@ -258,12 +286,51 @@ function warkCanvas(strCanvas, warkAreaWidth, warkAreaHeight, canvasWidth)
             svgStringArr.push(fabDummyCanvas.toSVG());
         }
 
+        // 変更ステータス
+        stateChange = false;
+
         return svgStringArr;
     };
     // -------------------------------------------------------------
     // 出力SVGのDPI取得
     this.getSvgDPI = function() {
         return OUT_PUT_DPI;
+    };
+    // -------------------------------------------------------------
+    // オブジェクト数を取得
+    this.getObjNum = function() {
+        return fabCanvas.getObjects().length;
+    };
+    // -------------------------------------------------------------
+    // 指定オブジェクトのファイルタイプを取得
+    this.getObjFileType = function(idx) {
+        var objects = fabCanvas.getObjects();
+
+        return objects[idx].fileType;
+    };
+    // -------------------------------------------------------------
+    // 指定オブジェクトのファイル名を取得
+    this.getObjFileName = function(idx) {
+        var objects = fabCanvas.getObjects();
+
+        return objects[idx].fileName;
+    };
+    // -------------------------------------------------------------
+    // 指定オブジェクトの色を取得
+    this.getObjColor = function(idx) {
+        var objects = fabCanvas.getObjects();
+
+        return objects[idx].colorArr;
+    };
+    // -------------------------------------------------------------
+    // 指定オブジェクトの画像サイズを取得
+    this.getObjImgSize = function(idx) {
+        var objects = fabCanvas.getObjects();
+
+        return {
+            imgWidth : objects[idx].imgWidth,
+            imgHeight : objects[idx].imgHeight
+        };
     };
     // -------------------------------------------------------------
     // オブジェクトのサイズを変更する
@@ -338,6 +405,8 @@ function warkCanvas(strCanvas, warkAreaWidth, warkAreaHeight, canvasWidth)
         fabCanvas.loadFromJSON(jsonObj.fabCanvas, function() {
             resizeCanvas();
         });
+        // 変更ステータス
+        stateChange = true;
     };
     // -------------------------------------------------------------
 

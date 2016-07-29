@@ -293,7 +293,7 @@ SVGReader = {
             subimage[0] = this.matrixApply(node.xformToWorld, subimage[0]);
             subimage[0] = this.vertexScale(subimage[0], 25.4/this.dpi);
 
-            subimage[1] = this.matrixApply(node.xformToWorld, subimage[1]);
+            subimage[1] = this.matrixApplyWithOutPos(node.xformToWorld, subimage[1]);
             subimage[1] = this.vertexScale(subimage[1], 25.4/this.dpi);
 
             this.rasters.push(subimage);
@@ -1274,6 +1274,10 @@ SVGReader = {
   matrixApply : function(mat, vec) {
     return [ mat[0]*vec[0] + mat[2]*vec[1] + mat[4],
              mat[1]*vec[0] + mat[3]*vec[1] + mat[5] ] ;
+  },  
+  matrixApplyWithOutPos : function(mat, vec) {
+    return [ mat[0]*vec[0] + mat[2]*vec[1],
+             mat[1]*vec[0] + mat[3]*vec[1] ] ;
   },  
   
   matrixGetScale : function(mat) {

@@ -94,6 +94,81 @@ DataHandler = {
         }
     },
 
+    jobProcess : function() {
+        // 画像の変換が必要か確認
+        var LoadImgNum = 0;
+        for (var i = 0; i < this.data_num; i++) {
+            for (var color in this.rasters_by_color[i]) {
+                var rasters = this.rasters_by_color[i][color];
+                if (!rasters) {
+                    continue;
+                }
+                for (var j = 0; j < rasters.length; j++) {
+                    var raster = rasters[j];
+                    if (raster.length < 5) {
+                        LoadImgNum++;
+                    }
+                }
+            }
+        }
+    
+        if (LoadImgNum == 0) {
+            // 画像変換が必要ない場合は、そのまま実行
+            send_gcode(this.getGcode(), "G-Code sent to backend.", true);
+            return;
+        }
+
+        // 画像変換後に実行
+        var loadCnt = 0;
+        for (var i = 0; i < this.data_num; i++) {
+            for (var color in this.rasters_by_color[i]) {
+                var rasters = this.rasters_by_color[i][color];
+                if (!rasters) {
+                    continue;
+                }
+                for (var j = 0; j < rasters.length; j++) {
+                    var raster = rasters[j];
+                    if (raster.length == 5) {
+                        continue;
+                    }
+                    var image = new Image();
+                    image.onload = finish(this.rasters_by_color, image, i, color, j);
+                    image.src = raster[2];
+                    function finish(ras_by_color, img, i, color, j){
+                        return function(){
+                            // 画像を追加
+                            var canvas = document.createElement("canvas");
+                            var context = canvas.getContext('2d');
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                            context.drawImage(img, 0, 0);
+
+                            var width = canvas.width;
+                            var height = canvas.height;
+                            var imageData = new Array(width * height);
+                            var srcData = context.getImageData(0, 0, width, height);
+                            var src = srcData.data;
+                            for (var k= 0; k < height; k++) {
+                                for (var l = 0; l < width;l++) {
+                                    imageData[l + k * width] = src[(l + k * width) * 4];
+                                }
+                            }
+                            ras_by_color[i][color][j].push(imageData);
+
+
+                            loadCnt++;
+                            if (LoadImgNum == loadCnt) {
+                                // すべての画像を変換したら次の処理へ
+                                send_gcode(DataHandler.getGcode(), "G-Code sent to backend.", true);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
+    },
 
   // writers //////////////////////////////////
     getGcode : function() {
@@ -124,9 +199,9 @@ DataHandler = {
                         var y1 = raster[0][1];
                         var width = raster[1][0];
                         var height = raster[1][1];
-                        var pixwidth = raster[2][0];
-                        var pixheight = raster[2][1];
-                        var data = raster[3];
+                        var pixwidth = raster[3][0];
+                        var pixheight = raster[3][1];
+                        var data = raster[4];
 
                         // Raster Variables
                         var dot_pitch = width / pixwidth;
